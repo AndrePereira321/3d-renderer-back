@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"server/globals"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,14 +10,17 @@ import (
 )
 
 var client *mongo.Client = nil
+var clientContext *context.Context = nil
 
-func clientContext() context.Context {
-	context, _ := context.WithTimeout(context.Background(), 10*time.Second)
-
-	return context
+func GetClientContext() *context.Context {
+	if clientContext == nil {
+		context := context.Background()
+		clientContext = &context
+	}
+	return clientContext
 }
 
-func clientOptions() *options.ClientOptions {
+func GetClientOptions() *options.ClientOptions {
 	clientOptions := options.Client()
 	clientOptions.ApplyURI(globals.DATABASE_URL)
 
@@ -27,14 +29,13 @@ func clientOptions() *options.ClientOptions {
 
 func GetClient() (*mongo.Client, error) {
 	if client == nil {
-		cli, err := mongo.NewClient(clientOptions())
+		cli, err := mongo.NewClient(GetClientOptions())
 
 		if err != nil {
 			return nil, xerrors.Errorf("Error creating the database client: %w", err)
 		}
 
-		ctx := clientContext()
-		err = cli.Connect(ctx)
+		err = cli.Connect(*GetClientContext())
 
 		if err != nil {
 			return nil, xerrors.Errorf("Error connecting to the database: %w", err)

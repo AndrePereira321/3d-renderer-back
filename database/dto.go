@@ -13,11 +13,12 @@ type DTO struct {
 
 func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
 	db, err := GetDatabase()
+
 	if err != nil {
 		return nil, xerrors.Errorf("Error retrieving database for saving "+dto.Name+": %w", err)
 	}
 
-	result, err := db.Collection(dto.Name, nil).InsertOne(clientContext(), saveDTO)
+	result, err := db.Collection(dto.Name, nil).InsertOne(*GetClientContext(), saveDTO)
 	if err != nil {
 		return nil, xerrors.Errorf("Error saving "+dto.Name+": %w", err)
 	}

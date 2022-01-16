@@ -14,8 +14,8 @@ type LogMessageDTO struct {
 	Time         string
 }
 
-func NewLogMessageDTO(logLevel, msg, location, detail string) LogMessageDTO {
-	return LogMessageDTO{
+func NewLogMessageDTO(logLevel, msg, location, detail string) *LogMessageDTO {
+	return &LogMessageDTO{
 		DTO: database.DTO{
 			Name: "logMessages",
 		},
@@ -23,6 +23,6 @@ func NewLogMessageDTO(logLevel, msg, location, detail string) LogMessageDTO {
 		Message:  msg,
 		Location: location,
 		Detail:   detail,
-		Time:     time.Now().String(),
+		Time:     time.Now().Format(time.RFC1123),
 	}
 }

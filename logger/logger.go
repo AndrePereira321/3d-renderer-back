@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"server/database/repositories"
 	"server/globals"
-	"time"
 )
 
-func displayLogMessage(logDTO repositories.LogMessageDTO) {
-	fmt.Println(logDTO.Time + " - [" + logDTO.Level + "] - " + logDTO.Message)
+func displayLogMessage(logDTO *repositories.LogMessageDTO) {
+	fmt.Println("[" + logDTO.Time + "] - [" + logDTO.Level + "] - " + logDTO.Message)
 }
 
 func DisplayMessage(level, msg string) {
-	fmt.Println(time.Now().String() + " - [" + level + "] - " + msg)
+	logDTO := repositories.NewLogMessageDTO(level, msg, "", "")
+	displayLogMessage(logDTO)
 }
 
 func Debug(msg string) {
