@@ -1,13 +1,80 @@
 package response
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type Response struct {
+	Status       string      `json:"status"`
+	ErrorMessage string      `json:"errorMessage"`
+	Data         interface{} `json:"data"`
+}
+
+type ResponseWriter struct {
 	http.ResponseWriter
 }
 
-func NewResponse(w http.ResponseWriter) *Response {
-	return &Response{
-		ResponseWriter: w,
+func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
+	return &ResponseWriter{
+		w,
 	}
+}
+
+func NewResponse() *Response {
+	return &Response{
+		Status: "",
+	}
+}
+
+func (w *ResponseWriter) WriteJSON(data *Response) error {
+	w.Header().Set("Content-Type", "application/json")
+	return w.WriteData(data)
+}
+
+func (w *ResponseWriter) WriteData(data interface{}) error {
+	buff, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(buff)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *ResponseWriter) WriteError(status int, code string) error {
+	r := NewResponse()
+	r.Status = code
+
+	w.Header().Set("Content-Type", "application/json")
+	buff, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+	w.WriteHeader(status)
+	_, err = w.Write(buff)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *ResponseWriter) WriteErrorMessage(status int, code string, errorMsg string) error {
+	r := NewResponse()
+	r.Status = code
+	r.ErrorMessage = errorMsg
+
+	w.Header().Set("Content-Type", "application/json")
+	buff, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+	w.WriteHeader(status)
+	_, err = w.Write(buff)
+	if err != nil {
+		return err
+	}
+	return nil
 }

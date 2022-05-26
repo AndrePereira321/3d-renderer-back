@@ -4,6 +4,7 @@ const DATABASE_URL = "mongodb://localhost:27017/?readPreference=primary&appname=
 const DATABASE_NAME = "REALK_DATA"
 
 const SERVER_PORT = "8082"
+const CLIENT_URL = "http://localhost:8080"
 
 const LOG_PERSISTENT = true
 const LOG_ALL_CONSOLE = true

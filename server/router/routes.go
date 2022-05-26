@@ -6,7 +6,12 @@ var get_routes = map[string]func(*routes.Route){
 	"/test": routes.Test,
 }
 
-var post_routes = map[string]func(*routes.Route){}
+var post_routes = map[string]func(*routes.Route){
+	"/register": routes.Register,
+	"/login":    routes.Login,
+}
+
+var auth_routes = map[string]bool{}
 
 func GetGETRoute(path string) func(*routes.Route) {
 	route, ok := get_routes[path]
@@ -22,4 +27,9 @@ func GetPOSTRoute(path string) func(*routes.Route) {
 		return nil
 	}
 	return route
+}
+
+func IsAuthRoute(path string) bool {
+	_, ok := auth_routes[path]
+	return ok
 }

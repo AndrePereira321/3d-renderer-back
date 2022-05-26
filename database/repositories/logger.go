@@ -17,7 +17,7 @@ type LogMessageDTO struct {
 func NewLogMessageDTO(logLevel, msg, location, detail string) *LogMessageDTO {
 	return &LogMessageDTO{
 		DTO: database.DTO{
-			Name: "logMessages",
+			CollectionName: "logMessages",
 		},
 		Level:    logLevel,
 		Message:  msg,
