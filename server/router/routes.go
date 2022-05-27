@@ -3,7 +3,8 @@ package router
 import "server/server/router/routes"
 
 var get_routes = map[string]func(*routes.Route){
-	"/test": routes.Test,
+	"/references": routes.Reference,
+	"/test":       routes.Test,
 }
 
 var post_routes = map[string]func(*routes.Route){
