@@ -6,7 +6,7 @@ import (
 )
 
 type Response struct {
-	Status       string      `json:"status"`
+	ErrorCode    string      `json:"errorCode"`
 	ErrorMessage string      `json:"errorMessage"`
 	Data         interface{} `json:"data"`
 }
@@ -22,9 +22,7 @@ func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
 }
 
 func NewResponse() *Response {
-	return &Response{
-		Status: "",
-	}
+	return &Response{}
 }
 
 func (w *ResponseWriter) WriteJSON(data *Response) error {
@@ -46,7 +44,7 @@ func (w *ResponseWriter) WriteData(data interface{}) error {
 
 func (w *ResponseWriter) WriteError(status int, code string) error {
 	r := NewResponse()
-	r.Status = code
+	r.ErrorCode = code
 
 	w.Header().Set("Content-Type", "application/json")
 	buff, err := json.Marshal(r)
@@ -63,7 +61,7 @@ func (w *ResponseWriter) WriteError(status int, code string) error {
 
 func (w *ResponseWriter) WriteErrorMessage(status int, code string, errorMsg string) error {
 	r := NewResponse()
-	r.Status = code
+	r.ErrorCode = code
 	r.ErrorMessage = errorMsg
 
 	w.Header().Set("Content-Type", "application/json")

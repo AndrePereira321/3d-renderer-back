@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"server/database"
 	"server/logger"
 	"server/server"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -24,6 +26,7 @@ func main() {
 
 	dbClient := startDatabase()
 	server := server.NewServer()
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	logger.Debug("Server Inited! Starting Listening")
 

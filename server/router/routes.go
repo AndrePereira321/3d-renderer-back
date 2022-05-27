@@ -7,11 +7,15 @@ var get_routes = map[string]func(*routes.Route){
 }
 
 var post_routes = map[string]func(*routes.Route){
-	"/register": routes.Register,
-	"/login":    routes.Login,
+	"/register":    routes.Register,
+	"/login":       routes.Login,
+	"/isConnected": routes.IsConnected,
+	"/disconnect":  routes.Disconnect,
 }
 
-var auth_routes = map[string]bool{}
+var auth_routes = map[string]bool{
+	"/disconnect": true,
+}
 
 func GetGETRoute(path string) func(*routes.Route) {
 	route, ok := get_routes[path]
@@ -30,6 +34,9 @@ func GetPOSTRoute(path string) func(*routes.Route) {
 }
 
 func IsAuthRoute(path string) bool {
-	_, ok := auth_routes[path]
-	return ok
+	result, ok := auth_routes[path]
+	if !ok {
+		return false
+	}
+	return result
 }

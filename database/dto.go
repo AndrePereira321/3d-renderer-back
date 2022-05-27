@@ -35,7 +35,7 @@ func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
 func GetObjectByID(collectionName string, id primitive.ObjectID, dto interface{}) error {
 	db, err := GetDatabase()
 	if err != nil {
-		return xerrors.Errorf("Error retrieving database for loading: %w", err)
+		return err
 	}
 	result := db.Collection(collectionName).FindOne(context.Background(), bson.M{"_id": id})
 	if result.Err() != nil {
@@ -51,7 +51,7 @@ func GetObjectByID(collectionName string, id primitive.ObjectID, dto interface{}
 func GetDTOByField(collectionName string, fieldName string, fieldValue interface{}, dto interface{}) error {
 	db, err := GetDatabase()
 	if err != nil {
-		return xerrors.Errorf("Error retrieving database for loading: %w", err)
+		return err
 	}
 	result := db.Collection(collectionName).FindOne(context.Background(), bson.M{fieldName: fieldValue})
 	if result.Err() != nil {

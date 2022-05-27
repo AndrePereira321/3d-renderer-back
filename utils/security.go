@@ -1,16 +1,20 @@
 package utils
 
-import "crypto/sha256"
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"strings"
+)
 
 func SaltFromPassword(pw string) string {
-	salt := ""
+	buff := strings.Builder{}
 	for i := 0; i < len(pw); i++ {
-		salt += string(ALPH_UNIVERSE[int(pw[i])%ALPH_UNIVERSE_LEN])
+		buff.WriteByte(ALPH_UNIVERSE[int(pw[i])%ALPH_UNIVERSE_LEN])
 	}
-	return salt
+	return buff.String()
 }
 
 func HashPassword(pw string) string {
 	hash := sha256.Sum256([]byte(pw))
-	return string(hash[:])
+	return hex.EncodeToString(hash[:])
 }

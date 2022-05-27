@@ -2,11 +2,11 @@ package repositories
 
 import "server/database"
 
-const user_table = "Users"
+const user_collection = "Users"
 
 type UserCredentials struct {
 	Hash string `bson:"hash"`
-	Salt string `bson:"sal"`
+	Salt string `bson:"salt"`
 }
 
 type UserDTO struct {
@@ -23,14 +23,14 @@ type UserDTO struct {
 func NewUserDTO() UserDTO {
 	return UserDTO{
 		DTO: database.DTO{
-			CollectionName: user_table,
+			CollectionName: user_collection,
 		},
 	}
 }
 
 func GetUserByEmail(email string) (*UserDTO, error) {
 	user := NewUserDTO()
-	err := database.GetDTOByField(user_table, "email", email, &user)
+	err := database.GetDTOByField(user_collection, "email", email, &user)
 	if err != nil {
 		return nil, err
 	}

@@ -47,7 +47,7 @@ func Register(route *Route) {
 
 	salt := utils.SaltFromPassword(payload.Password)
 
-	//TODO send email
+	//TODO send verification email
 	dto := repositories.UserDTO{
 		Email:     payload.Email,
 		FirstName: payload.FirstName,
