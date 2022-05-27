@@ -13,7 +13,8 @@ import (
 const reference_collection = "References"
 
 type ReferenceCache struct {
-	RefsByName map[string]ReferenceItemDTO
+	RefsByName          map[string]*ReferenceItemDTO
+	RefsCodeByTableName map[string]map[string]*ReferenceValue
 }
 
 func (cache *ReferenceCache) Init() error {
@@ -22,7 +23,12 @@ func (cache *ReferenceCache) Init() error {
 		return err
 	}
 	for i := 0; i < len(refs); i++ {
-		cache.RefsByName[refs[i].Table.TableCode] = refs[i]
+		tableCode := refs[i].Table.TableCode
+		cache.RefsByName[tableCode] = &refs[i]
+		cache.RefsCodeByTableName[tableCode] = map[string]*ReferenceValue{}
+		for j := 0; j < len(refs[i].Values); j++ {
+			cache.RefsCodeByTableName[tableCode][refs[i].Values[j].Code] = &refs[i].Values[j]
+		}
 	}
 	return nil
 }
@@ -30,9 +36,21 @@ func (cache *ReferenceCache) Init() error {
 func (cache *ReferenceCache) GetReference(tableName string) *ReferenceItemDTO {
 	ref, ok := cache.RefsByName[tableName]
 	if ok {
-		return &ref
+		return ref
 	}
 	return nil
+}
+
+func (cache *ReferenceCache) GetReferenceValue(tableName string, code string) *ReferenceValue {
+	table, ok := cache.RefsCodeByTableName[tableName]
+	if !ok {
+		return nil
+	}
+	value := table[code]
+	if !ok {
+		return nil
+	}
+	return value
 }
 
 type ReferenceItemDTO struct {
@@ -77,7 +95,7 @@ func GetAllReferencesFromDB() ([]ReferenceItemDTO, error) {
 		go logger.LogError("Error retrieving references from the database!", "cache.references.GetAllReferencesFromDB", globals.ERROR_DATABASE_ERROR)
 		return nil, xerrors.Errorf("Error retrieving references from the database: %w", err)
 	}
-	references := make([]ReferenceItemDTO, 0)
+	references := make([]ReferenceItemDTO, results.RemainingBatchLength())
 	err = results.All(ctx, &references)
 	if err != nil {
 		return nil, xerrors.Errorf("Error parsing references from the database: %w", err)

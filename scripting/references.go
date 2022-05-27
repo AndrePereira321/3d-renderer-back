@@ -8,27 +8,57 @@ import (
 	"server/database/cache"
 )
 
-type CountriesJSON struct {
-	Countries CountriesJSONObj `json:"countries"`
-}
-
-type CountriesJSONObj struct {
-	Country []CountryJSONObj `json:"country"`
-}
-
-type CountryJSONObj struct {
-	CountryCode    string `json:"countryCode"`
-	CountryName    string `json:"countryName"`
-	CurrencyCode   string `json:"currencyCode"`
-	Population     string `json:"population"`
-	Capital        string `json:"capital"`
-	CountinentName string `json:"continentName"`
-}
-
 func main() {
-	_, err := database.GetClient()
-	if err != nil {
-		log.Fatal(err)
+	insertCountries()
+	insertLanguages()
+}
+
+func insertLanguages() {
+	dto := cache.ReferenceItemDTO{
+		DTO: database.DTO{
+			CollectionName: "References",
+		},
+		Table: cache.ReferenceTable{
+			TableCode: "LANG",
+			Text1:     "Languages",
+		},
+		Values: []cache.ReferenceValue{
+			{
+				Code:  "EN",
+				Text1: "English",
+			},
+			{
+				Code:  "FR",
+				Text1: "French",
+			},
+			{
+				Code:  "PT",
+				Text1: "Portuguese",
+			},
+			{
+				Code:  "ES",
+				Text1: "Spanish",
+			},
+		},
+	}
+	dto.Save(&dto)
+}
+
+func insertCountries() {
+	type CountryJSONObj struct {
+		CountryCode    string `json:"countryCode"`
+		CountryName    string `json:"countryName"`
+		CurrencyCode   string `json:"currencyCode"`
+		Population     string `json:"population"`
+		Capital        string `json:"capital"`
+		CountinentName string `json:"continentName"`
+	}
+	type CountriesJSONObj struct {
+		Country []CountryJSONObj `json:"country"`
+	}
+
+	type CountriesJSON struct {
+		Countries CountriesJSONObj `json:"countries"`
 	}
 
 	file, err := os.ReadFile("./scripting/resources/countries.json")

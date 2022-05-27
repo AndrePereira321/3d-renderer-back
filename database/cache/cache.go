@@ -6,7 +6,8 @@ type CacheStruct struct {
 
 var Cache = CacheStruct{
 	References: ReferenceCache{
-		RefsByName: map[string]ReferenceItemDTO{},
+		RefsByName:          map[string]*ReferenceItemDTO{},
+		RefsCodeByTableName: map[string]map[string]*ReferenceValue{},
 	},
 }
 

@@ -77,16 +77,12 @@ func DisableUserSession(sessionCode string) error {
 }
 
 func IsActiveSession(sessionCode string) (bool, error) {
-	db, err := database.GetDatabase()
-	if err != nil {
-		return false, err
-	}
 	projection := options.FindOne().SetProjection(bson.D{
 		{"active", 1},
 	})
-	result := db.Collection(session_collection).FindOne(*database.GetClientContext(), bson.M{"sessionCode": sessionCode}, projection)
-	if result.Err() != nil {
-		if strings.Contains(result.Err().Error(), "no result") {
+	result, err := database.GetDTOResult(session_collection, bson.M{"sessionCode": sessionCode}, projection)
+	if err != nil {
+		if strings.Contains(err.Error(), "no result") {
 			return false, nil
 		}
 		return false, xerrors.Errorf("Error accessing database for retrieving session with code %s: %w", sessionCode, result.Err())

@@ -1,10 +1,12 @@
 package database
 
 import (
-	"context"
+	"encoding/hex"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/xerrors"
 )
 
@@ -32,14 +34,32 @@ func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
 	return nil, xerrors.New("Invalid generated ID when saving " + dto.CollectionName + " !")
 }
 
-func GetObjectByID(collectionName string, id primitive.ObjectID, dto interface{}) error {
+func (dto *DTO) Update(saveDTO interface{}, key primitive.ObjectID) (int, error) {
 	db, err := GetDatabase()
+
+	if err != nil {
+		return 0, xerrors.Errorf("Error retrieving database for upadting "+dto.CollectionName+" "+hex.EncodeToString(dto.ID[:])+": %w", err)
+	}
+
+	result, err := db.Collection(dto.CollectionName, nil).UpdateByID(*GetClientContext(), key, saveDTO)
+	if err != nil {
+		return int(result.ModifiedCount), xerrors.Errorf("Error saving "+dto.CollectionName+": %w", err)
+	}
+	return int(result.ModifiedCount), nil
+}
+
+func GetObjectByID(collectionName string, id primitive.ObjectID, dto interface{}) error {
+	return GetDTO(dto, collectionName, bson.M{"_id": id})
+}
+
+func GetDTOByField(collectionName string, fieldName string, fieldValue any, dto any) error {
+	return GetDTO(dto, collectionName, bson.M{fieldName: fieldValue})
+}
+
+func GetDTO(dto any, collectionName string, filter any, opts ...*options.FindOneOptions) error {
+	result, err := GetDTOResult(collectionName, filter, opts...)
 	if err != nil {
 		return err
-	}
-	result := db.Collection(collectionName).FindOne(context.Background(), bson.M{"_id": id})
-	if result.Err() != nil {
-		return xerrors.Errorf("Error accessing collection %s for finding object by it's id [%s]: %w", collectionName, id, result.Err())
 	}
 	err = result.Decode(dto)
 	if err != nil {
@@ -48,18 +68,14 @@ func GetObjectByID(collectionName string, id primitive.ObjectID, dto interface{}
 	return nil
 }
 
-func GetDTOByField(collectionName string, fieldName string, fieldValue interface{}, dto interface{}) error {
+func GetDTOResult(collectionName string, filter any, opts ...*options.FindOneOptions) (*mongo.SingleResult, error) {
 	db, err := GetDatabase()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	result := db.Collection(collectionName).FindOne(context.Background(), bson.M{fieldName: fieldValue})
+	result := db.Collection(collectionName).FindOne(*GetClientContext(), filter, opts...)
 	if result.Err() != nil {
-		return xerrors.Errorf("Error accessing collection %s for finding object with the field %s containging %s: %w", collectionName, fieldName, fieldValue, result.Err())
+		return nil, result.Err()
 	}
-	err = result.Decode(dto)
-	if err != nil {
-		return xerrors.Errorf("Error decoding result from collection %s: %w", collectionName, err)
-	}
-	return nil
+	return result, nil
 }

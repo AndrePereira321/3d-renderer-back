@@ -11,6 +11,7 @@ import (
 
 var client *mongo.Client = nil
 var clientContext *context.Context = nil
+var database *mongo.Database = nil
 
 func GetClientContext() *context.Context {
 	if clientContext == nil {
@@ -52,5 +53,8 @@ func GetDatabase() (*mongo.Database, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("Error retrieving the database client: %w", err)
 	}
-	return client.Database(globals.DATABASE_NAME), nil
+	if database == nil {
+		database = client.Database(globals.DATABASE_NAME)
+	}
+	return database, nil
 }
