@@ -2,12 +2,16 @@ package logger
 
 import (
 	"fmt"
+	"runtime/debug"
 	"server/database/repositories"
 	"server/globals"
 )
 
 func displayLogMessage(logDTO *repositories.LogMessageDTO) {
 	fmt.Println("[" + logDTO.Time + "] - [" + logDTO.Level + "] - " + logDTO.Message)
+	if len(logDTO.StackTrace) > 0 {
+		fmt.Println(logDTO.StackTrace)
+	}
 }
 
 func DisplayMessage(level, msg string) {
@@ -60,6 +64,7 @@ func Error(msg string) {
 func LogError(msg, location, detail string) {
 	if globals.LOG_ERROR || globals.LOG_ALL_CONSOLE {
 		logDTO := repositories.NewLogMessageDTO("ERROR", msg, location, detail)
+		logDTO.StackTrace = string(debug.Stack())
 		if globals.LOG_ERROR || globals.LOG_ALL_CONSOLE {
 			displayLogMessage(logDTO)
 		}

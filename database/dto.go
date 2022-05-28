@@ -62,9 +62,26 @@ func GetDTOResult(collectionName string, filter any, opts ...*options.FindOneOpt
 	return result, nil
 }
 
-func GetManyDTOs(dtos []any, collectionName string, filter any, opts ...*options.FindOneOptions) {
-
+func GetManyDTOs(dtos any, collectionName string, filter any, opts ...*options.FindOptions) error {
+	cursor, err := GetMany(collectionName, filter, opts...)
+	if err != nil {
+		return err
+	}
+	return cursor.All(*ClientContext, dtos)
 }
+
 func GetMany(collectionName string, filter any, opts ...*options.FindOptions) (*mongo.Cursor, error) {
 	return Database.Collection(collectionName).Find(*ClientContext, filter, opts...)
+}
+
+func GetAggregation(dtos any, collectionName string, stages ...bson.D) error {
+	cursor, err := Aggregate(collectionName, stages...)
+	if err != nil {
+		return err
+	}
+	return cursor.All(*ClientContext, dtos)
+}
+
+func Aggregate(collectionName string, stages ...bson.D) (*mongo.Cursor, error) {
+	return Database.Collection(collectionName).Aggregate(*ClientContext, stages)
 }

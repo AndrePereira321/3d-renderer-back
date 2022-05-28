@@ -6,12 +6,13 @@ import (
 )
 
 type LogMessageDTO struct {
-	database.DTO `bson:"inline"`
-	Level        string
-	Message      string
-	Detail       string
-	Location     string
-	Time         string
+	database.DTO
+	Level      string `bson:"level"`
+	Message    string `bson:"message"`
+	Detail     string `bson:"detail"`
+	Location   string `bson:"location"`
+	Time       string `bson:"time"`
+	StackTrace string `bson:"stackTrace"`
 }
 
 func NewLogMessageDTO(logLevel, msg, location, detail string) *LogMessageDTO {

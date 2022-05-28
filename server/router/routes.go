@@ -7,7 +7,6 @@ import (
 
 var get_routes = map[string]func(*routes.Route){
 	"/references": routes.Reference,
-	"/grid":       grid.Grid,
 	"/test":       routes.Test,
 }
 
@@ -16,6 +15,7 @@ var post_routes = map[string]func(*routes.Route){
 	"/login":       routes.Login,
 	"/isConnected": routes.IsConnected,
 	"/disconnect":  routes.Disconnect,
+	"/grid":        grid.Grid,
 }
 
 var auth_routes = map[string]bool{
