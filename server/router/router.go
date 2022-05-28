@@ -1,7 +1,9 @@
 package router
 
 import (
+	"errors"
 	"net/http"
+	"os"
 	"server/database/repositories"
 	"server/globals"
 	"server/logger"
@@ -54,13 +56,24 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		routeHandler = GetPOSTRoute(route.Path)
 		break
 	}
+
 	if routeHandler != nil {
 		if IsAuthRoute(route.Path) && !checkActiveSession(route) {
 			return
 		}
 		routeHandler(route)
 	} else {
-		go logger.LogWarning("Route not found: "+route.Path, "router.ServeHTTP", globals.ERROR_ROUTE_NOT_FOUND)
-		route.ResponseWriter.WriteError(http.StatusNotFound, globals.ERROR_ROUTE_NOT_FOUND)
+		if route.Path == "/" {
+			http.ServeFile(w, r, "./public/index.html")
+		} else {
+			path := "./public" + route.Path
+			if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+				go logger.LogWarning("Route not found: "+route.Path, "router.ServeHTTP", globals.ERROR_ROUTE_NOT_FOUND)
+				route.ResponseWriter.WriteError(http.StatusNotFound, globals.ERROR_ROUTE_NOT_FOUND)
+				return
+			}
+			http.ServeFile(w, r, path)
+		}
+
 	}
 }

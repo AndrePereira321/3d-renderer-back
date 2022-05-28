@@ -9,17 +9,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-var client *mongo.Client = nil
-var clientContext *context.Context = nil
-var database *mongo.Database = nil
-
-func GetClientContext() *context.Context {
-	if clientContext == nil {
-		context := context.Background()
-		clientContext = &context
-	}
-	return clientContext
-}
+var Client *mongo.Client = nil
+var ClientContext *context.Context = nil
+var Database *mongo.Database = nil
 
 func GetClientOptions() *options.ClientOptions {
 	clientOptions := options.Client()
@@ -28,33 +20,22 @@ func GetClientOptions() *options.ClientOptions {
 	return clientOptions
 }
 
-func GetClient() (*mongo.Client, error) {
-	if client == nil {
-		cli, err := mongo.NewClient(GetClientOptions())
+func Init() (*mongo.Database, error) {
+	context := context.Background()
 
-		if err != nil {
-			return nil, xerrors.Errorf("Error creating the database client: %w", err)
-		}
-
-		err = cli.Connect(*GetClientContext())
-
-		if err != nil {
-			return nil, xerrors.Errorf("Error connecting to the database: %w", err)
-		}
-
-		client = cli
-	}
-
-	return client, nil
-}
-
-func GetDatabase() (*mongo.Database, error) {
-	client, err := GetClient()
+	cli, err := mongo.NewClient(GetClientOptions())
 	if err != nil {
-		return nil, xerrors.Errorf("Error retrieving the database client: %w", err)
+		return nil, xerrors.Errorf("Error creating the database client: %w", err)
 	}
-	if database == nil {
-		database = client.Database(globals.DATABASE_NAME)
+
+	err = cli.Connect(context)
+	if err != nil {
+		return nil, xerrors.Errorf("Error connecting to the database: %w", err)
 	}
-	return database, nil
+
+	Client = cli
+	ClientContext = &context
+	Database = cli.Database(globals.DATABASE_NAME)
+
+	return Database, err
 }

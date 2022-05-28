@@ -43,11 +43,7 @@ func NewSessionDTOFill(userEmail string) SessionDTO {
 }
 
 func DisableUserSessions(userEmail string) error {
-	db, err := database.GetDatabase()
-	if err != nil {
-		return err
-	}
-	_, err = db.Collection(session_collection).UpdateMany(*database.GetClientContext(),
+	_, err := database.Database.Collection(session_collection).UpdateMany(*database.ClientContext,
 		bson.D{
 			{"userEmail", userEmail},
 		},
@@ -60,11 +56,7 @@ func DisableUserSessions(userEmail string) error {
 }
 
 func DisableUserSession(sessionCode string) error {
-	db, err := database.GetDatabase()
-	if err != nil {
-		return err
-	}
-	_, err = db.Collection(session_collection).UpdateOne(*database.GetClientContext(),
+	_, err := database.Database.Collection(session_collection).UpdateOne(*database.ClientContext,
 		bson.D{
 			{"sessionCode", sessionCode},
 		},

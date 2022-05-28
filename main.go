@@ -9,27 +9,18 @@ import (
 	"server/logger"
 	"server/server"
 	"time"
-
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func StartDatabase() *mongo.Client {
-	client, err := database.GetClient()
+func startDatabase() {
+	_, err := database.Init()
 	if err != nil {
 		logger.DisplayMessage("CRITICAL ERROR", "Error connecting to the database: "+err.Error())
 		log.Fatal(err)
+		panic(err)
 	}
-
-	return client
 }
 
-func main() {
-	logger.DisplayMessage("DEBUG", "Initing Database")
-
-	dbClient := StartDatabase()
-
-	logger.Debug("Database Inited! Initing server")
-
+func startServer() *server.Server {
 	server := server.NewServer()
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -37,16 +28,29 @@ func main() {
 	if err != nil {
 		logger.LogError("Error initing cache: "+err.Error(), "main", globals.ERROR_DATABASE_ERROR)
 		log.Fatal(err)
-		return
+		panic(err)
 	}
 
+	return server
+
+}
+
+func main() {
+	logger.DisplayMessage("DEBUG", "Initing Database")
+	startDatabase()
+	logger.Debug("Database Inited! Initing server")
+	server := startServer()
 	logger.Debug("Server Inited! Starting Listening")
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	defer dbClient.Disconnect(*database.GetClientContext())
+	defer func() {
+		if database.Client != nil && database.ClientContext != nil {
+			database.Client.Disconnect(*database.ClientContext)
+		}
+	}()
 }

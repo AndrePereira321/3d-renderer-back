@@ -1,8 +1,6 @@
 package database
 
 import (
-	"encoding/hex"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,13 +15,7 @@ type DTO struct {
 }
 
 func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
-	db, err := GetDatabase()
-
-	if err != nil {
-		return nil, xerrors.Errorf("Error retrieving database for saving "+dto.CollectionName+": %w", err)
-	}
-
-	result, err := db.Collection(dto.CollectionName, nil).InsertOne(*GetClientContext(), saveDTO)
+	result, err := Database.Collection(dto.CollectionName, nil).InsertOne(*ClientContext, saveDTO)
 	if err != nil {
 		return nil, xerrors.Errorf("Error saving "+dto.CollectionName+": %w", err)
 	}
@@ -35,13 +27,7 @@ func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
 }
 
 func (dto *DTO) Update(saveDTO interface{}, key primitive.ObjectID) (int, error) {
-	db, err := GetDatabase()
-
-	if err != nil {
-		return 0, xerrors.Errorf("Error retrieving database for upadting "+dto.CollectionName+" "+hex.EncodeToString(dto.ID[:])+": %w", err)
-	}
-
-	result, err := db.Collection(dto.CollectionName, nil).UpdateByID(*GetClientContext(), key, saveDTO)
+	result, err := Database.Collection(dto.CollectionName, nil).UpdateByID(*ClientContext, key, saveDTO)
 	if err != nil {
 		return int(result.ModifiedCount), xerrors.Errorf("Error saving "+dto.CollectionName+": %w", err)
 	}
@@ -69,13 +55,16 @@ func GetDTO(dto any, collectionName string, filter any, opts ...*options.FindOne
 }
 
 func GetDTOResult(collectionName string, filter any, opts ...*options.FindOneOptions) (*mongo.SingleResult, error) {
-	db, err := GetDatabase()
-	if err != nil {
-		return nil, err
-	}
-	result := db.Collection(collectionName).FindOne(*GetClientContext(), filter, opts...)
+	result := Database.Collection(collectionName).FindOne(*ClientContext, filter, opts...)
 	if result.Err() != nil {
 		return nil, result.Err()
 	}
 	return result, nil
+}
+
+func GetManyDTOs(dtos []any, collectionName string, filter any, opts ...*options.FindOneOptions) {
+
+}
+func GetMany(collectionName string, filter any, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+	return Database.Collection(collectionName).Find(*ClientContext, filter, opts...)
 }

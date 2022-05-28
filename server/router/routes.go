@@ -1,9 +1,13 @@
 package router
 
-import "server/server/router/routes"
+import (
+	"server/server/router/routes"
+	"server/server/router/routes/grid"
+)
 
 var get_routes = map[string]func(*routes.Route){
 	"/references": routes.Reference,
+	"/grid":       grid.Grid,
 	"/test":       routes.Test,
 }
 
@@ -16,6 +20,7 @@ var post_routes = map[string]func(*routes.Route){
 
 var auth_routes = map[string]bool{
 	"/disconnect": true,
+	"/grid":       true,
 }
 
 func GetGETRoute(path string) func(*routes.Route) {

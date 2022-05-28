@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"context"
 	"server/database"
 	"server/globals"
 	"server/logger"
@@ -85,18 +84,13 @@ type ReferenceValue struct {
 }
 
 func GetAllReferencesFromDB() ([]ReferenceItemDTO, error) {
-	db, err := database.GetDatabase()
-	if err != nil {
-		return nil, err
-	}
-	ctx := context.Background()
-	results, err := db.Collection(reference_collection).Find(ctx, bson.M{})
+	results, err := database.Database.Collection(reference_collection).Find(*database.ClientContext, bson.M{})
 	if err != nil {
 		go logger.LogError("Error retrieving references from the database!", "cache.references.GetAllReferencesFromDB", globals.ERROR_DATABASE_ERROR)
 		return nil, xerrors.Errorf("Error retrieving references from the database: %w", err)
 	}
 	references := make([]ReferenceItemDTO, results.RemainingBatchLength())
-	err = results.All(ctx, &references)
+	err = results.All(*database.ClientContext, &references)
 	if err != nil {
 		return nil, xerrors.Errorf("Error parsing references from the database: %w", err)
 	}

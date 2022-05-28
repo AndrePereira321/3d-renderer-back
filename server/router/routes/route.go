@@ -33,3 +33,12 @@ func (r *Route) WriteData() {
 		r.ResponseWriter.WriteError(http.StatusInternalServerError, globals.ERROR_RESPONSE_JSON_CONVERSION)
 	}
 }
+
+func (r *Route) WriteObject(obj any) {
+	r.Response.Data = obj
+	err := r.ResponseWriter.WriteJSON(r.Response)
+	if err != nil {
+		go logger.LogError("Error writing JSON data in route"+r.Path, "Route.WriteData", globals.ERROR_RESPONSE_JSON_CONVERSION)
+		r.ResponseWriter.WriteError(http.StatusInternalServerError, globals.ERROR_RESPONSE_JSON_CONVERSION)
+	}
+}
