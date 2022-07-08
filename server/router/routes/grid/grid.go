@@ -13,6 +13,9 @@ type GridPayload struct {
 	GridName string `json:"gridName"`
 	Filter   bson.M `json:"filter"`
 	Order    bson.M `json:"order"`
+	StartRow int    `json:"startRow"`
+	EndRow   int    `json:"endRow"`
+	Search   string `json:"search"`
 }
 
 type GridResponse struct {

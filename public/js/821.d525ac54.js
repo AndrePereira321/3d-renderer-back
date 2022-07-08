@@ -1,2 +1,0 @@
-"use strict";(self["webpackChunk_3d_renderer"]=self["webpackChunk_3d_renderer"]||[]).push([[821],{8821:function(e,n,r){r.r(n),r.d(n,{default:function(){return s}});var u=r(3396),l=r(4870),a=(0,u.aZ)({name:"app-table",props:{tableName:null,model:null,columns:null},setup(e){(0,l.iH)();return(e,n)=>((0,u.wg)(),(0,u.iD)("div"))}});const t=a;var s=t}}]);
-//# sourceMappingURL=821.d525ac54.js.map

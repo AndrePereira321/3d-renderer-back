@@ -6,11 +6,96 @@ import (
 	"os"
 	"server/database"
 	"server/database/cache"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func main() {
-	insertCountries()
-	insertLanguages()
+	database.Init()
+
+	//insertCountries()
+	//insertLanguages()
+	//insertComparationOperators()
+	//insertLogicalOperators()
+}
+
+func insertComparationOperators() {
+	dto := cache.ReferenceItemDTO{
+		DTO: database.DTO{
+			CollectionName: "References",
+		},
+		Table: cache.ReferenceTable{
+			TableCode: "COMP_OPS",
+			Text1:     "Comparation Operators",
+		},
+		Values: []cache.ReferenceValue{
+			{
+				Code:  "$eq",
+				Text1: "Equals",
+			},
+			{
+				Code:  "$ne",
+				Text1: "Different",
+			},
+			{
+				Code:  "$lt",
+				Text1: "Lesser Than",
+			},
+			{
+				Code:  "$lte",
+				Text1: "Lesser/Equals Than",
+			},
+			{
+				Code:  "$gt",
+				Text1: "Greater Than",
+			},
+			{
+				Code:  "$gte",
+				Text1: "Greater/Equals Than",
+			},
+			{
+				Code:  "$in",
+				Text1: "In",
+			},
+			{
+				Code:  "$nin",
+				Text1: "Not In",
+			},
+			{
+				Code:  "$regex",
+				Text1: "Contains",
+			},
+		},
+	}
+	dto.Save(&dto)
+}
+
+func insertLogicalOperators() {
+	dto := cache.ReferenceItemDTO{
+		DTO: database.DTO{
+			CollectionName: "References",
+		},
+		Table: cache.ReferenceTable{
+			TableCode: "LOG_OPS",
+			Text1:     "Logical Operators",
+		},
+		Values: []cache.ReferenceValue{
+			{
+				Code:  "$and",
+				Text1: "And",
+			},
+			{
+				Code:  "$or",
+				Text1: "Or",
+			},
+			{
+				Code:  "$not",
+				Text1: "Not",
+			},
+		},
+	}
+	dto.Save(&dto)
 }
 
 func insertLanguages() {
@@ -75,6 +160,7 @@ func insertCountries() {
 	dto := cache.ReferenceItemDTO{
 		DTO: database.DTO{
 			CollectionName: "References",
+			CreatedDate:    primitive.Timestamp{T: uint32(time.Now().Unix())},
 		},
 		Table: cache.ReferenceTable{
 			TableCode: "COUNTRIES",

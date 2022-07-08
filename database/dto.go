@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,11 +13,13 @@ import (
 type DTO struct {
 	ID             primitive.ObjectID  `bson:"_id,omitempty"`
 	CollectionName string              `bson:"-"`
+	CreatedDate    primitive.Timestamp `bson:"createdDate"`
 	UpdatedDate    primitive.Timestamp `bson:"updatedDate"`
 }
 
 func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
-	result, err := Database.Collection(dto.CollectionName, nil).InsertOne(*ClientContext, saveDTO)
+	dto.CreatedDate = primitive.Timestamp{T: uint32(time.Now().Unix())}
+	result, err := Database.Collection(dto.CollectionName).InsertOne(*ClientContext, saveDTO)
 	if err != nil {
 		return nil, xerrors.Errorf("Error saving "+dto.CollectionName+": %w", err)
 	}
@@ -27,7 +31,8 @@ func (dto *DTO) Save(saveDTO interface{}) (*primitive.ObjectID, error) {
 }
 
 func (dto *DTO) Update(saveDTO interface{}, key primitive.ObjectID) (int, error) {
-	result, err := Database.Collection(dto.CollectionName, nil).UpdateByID(*ClientContext, key, saveDTO)
+	dto.UpdatedDate = primitive.Timestamp{T: uint32(time.Now().Unix())}
+	result, err := Database.Collection(dto.CollectionName).UpdateByID(*ClientContext, key, saveDTO)
 	if err != nil {
 		return int(result.ModifiedCount), xerrors.Errorf("Error saving "+dto.CollectionName+": %w", err)
 	}

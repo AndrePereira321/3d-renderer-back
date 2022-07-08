@@ -66,7 +66,7 @@ func LogError(msg, location, detail string) {
 		logDTO := repositories.NewLogMessageDTO("ERROR", msg, location, detail)
 		logDTO.StackTrace = string(debug.Stack())
 		if globals.LOG_ERROR || globals.LOG_ALL_CONSOLE {
-			displayLogMessage(logDTO)
+			//displayLogMessage(logDTO)
 		}
 		if globals.LOG_ERROR && globals.LOG_PERSISTENT {
 			_, err := logDTO.Save(logDTO)

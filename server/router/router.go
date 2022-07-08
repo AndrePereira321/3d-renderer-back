@@ -63,17 +63,12 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		routeHandler(route)
 	} else {
-		if route.Path == "/" {
-			http.ServeFile(w, r, "./public/index.html")
-		} else {
-			path := "./public" + route.Path
-			if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-				go logger.LogWarning("Route not found: "+route.Path, "router.ServeHTTP", globals.ERROR_ROUTE_NOT_FOUND)
-				route.ResponseWriter.WriteError(http.StatusNotFound, globals.ERROR_ROUTE_NOT_FOUND)
-				return
-			}
-			http.ServeFile(w, r, path)
+		path := globals.CLIENT_FOLDER + route.Path
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			go logger.LogWarning("Route not found: "+route.Path, "router.ServeHTTP", globals.ERROR_ROUTE_NOT_FOUND)
+			route.ResponseWriter.WriteError(http.StatusNotFound, globals.ERROR_ROUTE_NOT_FOUND)
+			return
 		}
-
+		http.ServeFile(w, r, path)
 	}
 }
